@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Choose Your Channel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* VOICE: upbeat newsroom for 12-year-olds; clear, quick, a little loud.
+   IDEA: a channel selector — students flip between four "channels" like a broadcast control desk.
+   PICTURE: the four-system explorer up top, each system drawn as an icon with its own colour.
+   COLOUR and TYPE: white ground, ink, on-air red header band; print slate, radio orange, TV blue, internet violet. Libre Franklin + Atkinson Hyperlegible.
+   LAYOUT: header band, explorer, lettered parts A–F stacked, results sheet. */
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#F6F5F2,#121316);
+  --card:light-dark(#FFFFFF,#1B1D21);
+  --ink:light-dark(#16181B,#ECEDEF);
+  --muted:light-dark(#5A6068,#A3A9B1);
+  --line:light-dark(#D9DBDF,#33363C);
+  --red:light-dark(#C62828,#EF5A50);
+  --red-ink:#FFFFFF;
+  --good:light-dark(#1B7A4C,#52C48D);
+  --good-soft:light-dark(#E3F3EA,#15342A);
+  --bad:light-dark(#B3362E,#F2806F);
+  --bad-soft:light-dark(#FBE8E6,#3D1E1C);
+  --print:light-dark(#3D4B5C,#9FB2C8);
+  --radio:light-dark(#C85A0C,#F39A55);
+  --tv:light-dark(#1F5FBF,#6FA6F2);
+  --web:light-dark(#7136B8,#B78CF0);
+  --display:"Libre Franklin","Arial Narrow",Arial,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",Verdana,sans-serif;
+}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--body);overflow-x:clip}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;text-wrap:balance;line-height:1.05}
+.small{font-size:14px;color:var(--muted)}
+
+/* Header band */
+.masthead{background:var(--red);color:var(--red-ink);padding:max(env(safe-area-inset-top,0px),28px) max(5vw,16px) 26px}
+.mh-in{max-width:960px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end}
+.onair{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:14px;border:2px solid currentColor;padding:3px 10px;border-radius:3px;margin-bottom:12px}
+.onair i{width:9px;height:9px;border-radius:50%;background:currentColor;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.masthead h1{font-size:clamp(36px,7vw,56px)}
+.masthead p{margin:10px 0 0;max-width:60ch;font-size:17px}
+.idbox{background:rgba(0,0,0,.16);border-radius:6px;padding:12px 14px;display:grid;gap:8px;min-width:240px}
+.idbox label{font-size:13px;font-weight:700;display:grid;gap:2px}
+.idbox input{font:inherit;font-size:16px;border:0;border-bottom:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;padding:4px 0}
+.idbox input::placeholder{color:rgba(255,255,255,.7)}
+.idbox input:focus{outline:none;border-bottom-color:#fff}
+.std{font-size:13px;opacity:.9}
+@media(max-width:640px){.mh-in{grid-template-columns:1fr}.idbox{min-width:0}}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) calc(64px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:26px}
+.progress{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:15px}
+.bar{flex:1 1 220px;height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:var(--red);transition:width .3s}
+.count{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* Parts */
+section.part{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.part-head{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.part-letter{font-family:var(--display);font-weight:800;font-size:36px;background:var(--ink);color:var(--card);width:62px;display:grid;place-items:center;flex:none}
+.part-title{padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.part-title h2{font-size:28px}
+.kicker{font-size:14px;color:var(--muted);font-weight:700}
+.part-score{align-self:center;margin-right:14px;font-size:14px;padding:4px 10px;border:1px solid var(--line);border-radius:20px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.part-score.done{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.part-body{padding:18px;display:flex;flex-direction:column;gap:16px}
+.intro{margin:0;max-width:68ch}
+@media(max-width:520px){.part-score{display:none}.part-title h2{font-size:24px}}
+
+/* Explorer */
+.criteria{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.crit{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--bg)}
+.crit b{font-family:var(--display);font-size:17px;display:block}
+.crit span{font-size:15px;color:var(--muted)}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tab{--c:var(--ink);font:inherit;font-family:var(--display);font-weight:800;font-size:17px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;min-height:44px;cursor:pointer;border:2px solid var(--c);color:var(--c);background:var(--card);border-radius:8px}
+.tab svg{width:44px;height:36px}
+.tab[aria-selected=true]{background:var(--c);color:var(--card)}
+.tab .seen{font-family:var(--body);font-weight:400;font-size:13px;opacity:.8}
+.tab:focus-visible,.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+@media(max-width:520px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.panel{--c:var(--ink);border:2px solid var(--c);border-radius:10px;overflow:hidden}
+.p-top{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;padding:18px;background:color-mix(in srgb,var(--c) 9%,var(--card))}
+.p-icon{color:var(--c)}
+.p-icon svg{width:100%;height:auto;display:block}
+.p-top h3{font-size:34px;color:var(--c)}
+.p-top .tagline{font-weight:700;margin:4px 0 6px}
+.p-top p{margin:0}
+.pc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}
+.pc>div{padding:14px 18px}
+.pc>div+div{border-left:1px solid var(--line)}
+.pc h4{margin:0 0 6px;font-family:var(--display);font-size:19px}
+.pc .plus h4{color:var(--good)}.pc .minus h4{color:var(--bad)}
+.pc ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.meters{border-top:1px solid var(--line);padding:14px 18px;display:grid;gap:10px}
+.meter{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,190px);gap:12px;align-items:center}
+.meter b{font-family:var(--display)}
+.segs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.segs i{height:14px;border-radius:3px;background:var(--line)}
+.segs i.on{background:var(--c)}
+.meter span{font-size:15px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:14px;padding:2px 10px;border-radius:20px;border:1.5px solid var(--line);color:var(--muted)}
+.chip.on{border-color:var(--c);background:var(--c);color:var(--card);font-weight:700}
+.example{border-top:1px solid var(--line);padding:12px 18px;font-size:15px;background:var(--bg)}
+@media(max-width:600px){.p-top{grid-template-columns:90px minmax(0,1fr)}.p-top h3{font-size:28px}.pc{grid-template-columns:1fr}.pc>div+div{border-left:0;border-top:1px solid var(--line)}.meter{grid-template-columns:96px minmax(0,1fr)}.meter span{grid-column:2}}
+
+/* Questions */
+.qgrid{display:grid;gap:14px;grid-template-columns:1fr}
+.qgrid.compact{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.q{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--card)}
+.q.right{border-color:var(--good);background:var(--good-soft)}
+.q.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.q-num{font-size:13px;color:var(--muted);font-weight:700}
+.q-prompt{font-weight:700;margin:0}
+.sys-tag{display:inline-block;font-family:var(--display);font-weight:800;font-size:13px;color:var(--card);padding:1px 8px;border-radius:3px;margin-right:6px;vertical-align:2px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:inherit;font-size:16px;padding:9px 16px;min-height:44px;cursor:pointer;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:6px;text-align:left}
+.opt:hover:not(:disabled){background:var(--bg)}
+.opt:disabled{cursor:default;opacity:.5}
+.opt.is-right{background:var(--good);border-color:var(--good);color:var(--card);opacity:1}
+.opt.is-pick-wrong{background:var(--bad);border-color:var(--bad);color:var(--card);opacity:1}
+.why{margin:0;font-size:15px}
+.why b{font-family:var(--display);margin-right:6px}
+
+/* Matrix */
+.scenario{border-left:5px solid var(--red);background:var(--bg);padding:12px 16px;border-radius:0 6px 6px 0}
+.scenario b{font-family:var(--display);font-size:19px;display:block;margin-bottom:2px}
+.mx{display:grid;gap:8px}
+.mx-row{display:grid;grid-template-columns:150px repeat(4,minmax(0,1fr)) 80px;gap:8px;align-items:center}
+.mx-head{font-family:var(--display);font-weight:800;font-size:15px;color:var(--muted)}
+.mx-sys{font-family:var(--display);font-weight:800;color:var(--c)}
+.mx-cell label{display:none;font-size:13px;color:var(--muted)}
+.mx select,.field select,.field input,.field textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);padding:9px 10px;border-radius:6px;width:100%;min-height:44px}
+.mx-total{font-family:var(--display);font-weight:800;font-size:24px;text-align:right;font-variant-numeric:tabular-nums}
+.mx-row.win{background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:6px;outline:2px solid var(--c);outline-offset:3px}
+@media(max-width:640px){
+  .mx-head{display:none}
+  .mx-row{grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);border-radius:8px;padding:10px}
+  .mx-sys{grid-column:1}.mx-total{grid-column:2;grid-row:1}
+  .mx-cell label{display:block}
+}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label{font-weight:700}
+.field small{color:var(--muted);font-size:14px}
+.field textarea{min-height:92px;resize:vertical}
+.mx select:focus,.field select:focus,.field input:focus,.field textarea:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 20%,transparent)}
+.row2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+
+/* Results */
+.results{border:2px solid var(--ink);border-radius:8px;background:var(--card);overflow:hidden}
+.results-head{background:var(--ink);color:var(--card);padding:14px 18px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.results-head h2{font-size:28px}
+.big{font-family:var(--display);font-size:38px;font-weight:800;font-variant-numeric:tabular-nums}
+.results-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tally div{padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px;font-size:14px;color:var(--muted)}
+.tally strong{font-size:19px;color:var(--ink);font-variant-numeric:tabular-nums}
+.checklist{margin:0;padding-left:20px;color:var(--muted)}
+.checklist li.ok{color:var(--good)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font-family:var(--display);font-weight:800;font-size:18px;padding:10px 20px;min-height:44px;border:2px solid var(--red);background:var(--red);color:var(--red-ink);cursor:pointer;border-radius:6px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink)}
+.status{font-size:15px;color:var(--good)}
+#copyText{width:100%;min-height:160px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:10px;border-radius:6px}
+.confirm{border:1.5px solid var(--bad);background:var(--bad-soft);padding:12px;border-radius:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.bar span{transition:none}.onair i{animation:none}}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="mh-in">
+    <div>
+      <span class="onair"><i></i>On air</span>
+      <h1>Choose Your Channel</h1>
+      <p>Print, radio, television, and the internet all send messages, but each one does it differently. Explore all four, then decide which one fits the job. Your first click on each question counts, so think before you tap.</p>
+    </div>
+    <div class="idbox">
+      <label>Name<input id="stuName" autocomplete="name" placeholder="First and last"></label>
+      <label>Period / class<input id="stuPeriod" placeholder="e.g. Period 3"></label>
+      <span class="std">Standard 7.MS-ETS3-2(MA)</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="progress" aria-live="polite">
+    <b>Progress</b>
+    <div class="bar"><span id="barFill"></span></div>
+    <span class="count" id="progCount">0 / 0</span>
+  </div>
+
+  <section class="part" id="partA">
+    <div class="part-head">
+      <div class="part-letter">A</div>
+      <div class="part-title"><span class="kicker">Overview</span><h2>Meet the Systems</h2></div>
+      <span class="part-score" id="scoreA"></span>
+    </div>
+    <div class="part-body">
+      <p class="intro">Engineers judge a communication system with four criteria. Learn them first, then tap each channel to see its benefits and drawbacks. Open all four channels before you answer the questions.</p>
+      <div class="criteria">
+        <div class="crit"><b>Speed</b><span>How fast the message gets out to people.</span></div>
+        <div class="crit"><b>Reach</b><span>How many people it gets to, and how far away.</span></div>
+        <div class="crit"><b>Format</b><span>The kind of content it can carry: text, images, audio, or video.</span></div>
+        <div class="crit"><b>Interactivity</b><span>Whether the audience can respond, ask, or share back.</span></div>
+      </div>
+      <div class="tabs" role="tablist" id="tabs" aria-label="Communication systems"></div>
+      <div class="panel" id="sysPanel" role="tabpanel" aria-live="polite"></div>
+      <div class="qgrid compact" id="gridA"></div>
+    </div>
+  </section>
+
+  <div id="partsMid" style="display:flex;flex-direction:column;gap:26px"></div>
+
+  <section class="part" id="partD">
+    <div class="part-head">
+      <div class="part-letter">D</div>
+      <div class="part-title"><span class="kicker">Evaluate</span><h2>Score the Systems</h2></div>
+      <span class="part-score" id="scoreD"></span>
+    </div>
+    <div class="part-body">
+      <div class="scenario"><b>Scenario: The ice storm</b>An ice storm has knocked out power across town for three days, and many cell towers are down too. The town needs to tell every resident where the warming shelters are.</div>
+      <p class="intro">Rate how well each system would work <strong>in this situation</strong>, from 1 (terrible) to 5 (excellent). Don't copy the ratings from Part A. Ask yourself whether people could actually get the message right now. The totals add up on their own.</p>
+      <div class="mx" id="matrix"></div>
+      <div class="field">
+        <label for="d_r1">1. Which system got the highest total? Is it really the best choice when the power is out? Explain.</label>
+        <textarea id="d_r1" data-text placeholder="The highest total was… I think it is / isn't the best choice because…"></textarea>
+      </div>
+      <div class="field">
+        <label for="d_r2">2. What matters in this situation that our four criteria didn't measure?</label>
+        <small>Hint: think about what each system needs in order to work.</small>
+        <textarea id="d_r2" data-text placeholder="Something the criteria missed is…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div id="partsLow" style="display:flex;flex-direction:column;gap:26px"></div>
+
+  <section class="part" id="partF">
+    <div class="part-head">
+      <div class="part-letter">F</div>
+      <div class="part-title"><span class="kicker">Recommend</span><h2>You Make the Call</h2></div>
+      <span class="part-score" id="scoreF"></span>
+    </div>
+    <div class="part-body">
+      <p class="intro">You are the communication engineer. Pick a scenario, recommend a system, and back up your choice with the criteria. Write in full sentences.</p>
+      <div class="row2">
+        <div class="field">
+          <label for="f_scn">Your scenario</label>
+          <select id="f_scn" data-text>
+            <option value="">Choose one</option>
+            <option>The animal shelter needs volunteers and donations before winter.</option>
+            <option>A water main broke, and one neighborhood shouldn't drink tap water for 24 hours.</option>
+            <option>Our school is turning 100 and wants to share its history with the town.</option>
+            <option>A student group is selling tickets for a school fundraiser happening this Friday.</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f_sys">My recommendation</label>
+          <select id="f_sys" data-text>
+            <option value="">Choose one</option>
+            <option>Print</option><option>Radio</option><option>Television</option><option>Internet</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_why">1. Why is this the best system for the job? Use at least two criteria (speed, reach, format, interactivity).</label>
+        <textarea id="f_why" data-text placeholder="I recommend ___ because its speed… and its reach…"></textarea>
+      </div>
+      <div class="field">
+        <label for="f_con">2. What is one drawback of your choice, and how would you work around it?</label>
+        <textarea id="f_con" data-text placeholder="One drawback is… To fix this, I would…"></textarea>
+      </div>
+      <div class="field">
+        <label for="f_backup">3. Which system would you use as a backup? Why?</label>
+        <textarea id="f_backup" data-text placeholder="As a backup I would use ___ so that…"></textarea>
+      </div>
+      <div class="field">
+        <label for="f_wrong">4. Name a system that would be the WRONG choice here. What problem would it cause?</label>
+        <textarea id="f_wrong" data-text placeholder="___ would be the wrong choice because…"></textarea>
+      </div>
+      <div class="field">
+        <label for="f_eq">5. Big question: Why is no single communication system "best" for every situation?</label>
+        <textarea id="f_eq" data-text placeholder="No system is best for everything because…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="results" id="results">
+    <div class="results-head">
+      <h2>Results Sheet</h2>
+      <span class="big" id="bigScore">0 / 0</span>
+    </div>
+    <div class="results-body">
+      <div class="tally" id="tally"></div>
+      <ul class="checklist" id="checklist"></ul>
+      <p class="intro">When you are finished, copy your answers and paste them into the assignment your teacher posted.</p>
+      <div class="actions">
+        <button class="btn" id="copyBtn" type="button">Copy my answers</button>
+        <button class="btn ghost" id="resetBtn" type="button">Start over</button>
+        <span class="status" id="copyStatus" aria-live="polite"></span>
+      </div>
+      <div class="confirm" id="confirmBox" hidden>
+        <span>This erases every answer on this device. Are you sure?</span>
+        <button class="btn" id="confirmYes" type="button">Yes, erase</button>
+        <button class="btn ghost" id="confirmNo" type="button">Keep my work</button>
+      </div>
+      <textarea id="copyText" readonly hidden aria-label="Your answers as text"></textarea>
+    </div>
+  </section>
+</div>
+
+<script>
+{
+const ICONS = {
+  print: `<svg viewBox="0 0 120 100" aria-hidden="true"><rect x="14" y="10" width="92" height="80" rx="4" fill="currentColor" opacity=".15"/><rect x="14" y="10" width="92" height="80" rx="4" fill="none" stroke="currentColor" stroke-width="4"/><rect x="24" y="20" width="72" height="12" fill="currentColor"/><rect x="24" y="40" width="32" height="26" fill="currentColor" opacity=".55"/><g stroke="currentColor" stroke-width="4" stroke-linecap="round"><line x1="64" y1="42" x2="96" y2="42"/><line x1="64" y1="53" x2="96" y2="53"/><line x1="64" y1="64" x2="90" y2="64"/><line x1="24" y1="78" x2="96" y2="78"/></g></svg>`,
+  radio: `<svg viewBox="0 0 120 100" aria-hidden="true"><line x1="34" y1="34" x2="92" y2="6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="10" y="34" width="100" height="58" rx="10" fill="currentColor" opacity=".15"/><rect x="10" y="34" width="100" height="58" rx="10" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="40" cy="63" r="17" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="40" cy="63" r="6" fill="currentColor"/><rect x="68" y="48" width="30" height="10" rx="2" fill="currentColor"/><circle cx="76" cy="75" r="5" fill="currentColor"/><circle cx="92" cy="75" r="5" fill="currentColor"/></svg>`,
+  tv: `<svg viewBox="0 0 120 100" aria-hidden="true"><line x1="46" y1="16" x2="60" y2="26" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><line x1="76" y1="10" x2="60" y2="26" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><rect x="10" y="26" width="100" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="4"/><rect x="18" y="34" width="84" height="44" rx="2" fill="currentColor" opacity=".2"/><path d="M52 46 L72 56 L52 66 Z" fill="currentColor"/><line x1="40" y1="94" x2="80" y2="94" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="86" x2="60" y2="94" stroke="currentColor" stroke-width="4"/></svg>`,
+  web: `<svg viewBox="0 0 120 100" aria-hidden="true"><rect x="22" y="14" width="76" height="54" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 76 H112 L104 88 H16 Z" fill="currentColor"/><circle cx="60" cy="41" r="18" fill="currentColor" opacity=".18"/><g fill="none" stroke="currentColor" stroke-width="3"><circle cx="60" cy="41" r="18"/><ellipse cx="60" cy="41" rx="8" ry="18"/><line x1="42" y1="41" x2="78" y2="41"/><path d="M45 31 Q60 36 75 31"/><path d="M45 51 Q60 46 75 51"/></g></svg>`
+};
+
+const SYS = [
+  { key:"print", name:"Print", color:"var(--print)", tag:"Newspapers, magazines, books, flyers, posters, maps",
+    how:"Words and pictures are printed on paper, then delivered, mailed, posted, or picked up.",
+    pros:["Lasts a long time. You can keep it, reread it, and pass it on.","Needs no battery, power, device, or signal.","Has room for detail and in-depth stories.","Usually edited and checked before printing, so many people trust it."],
+    cons:["Slowest. News can be a day old or more by the time you read it.","Can't be changed once printed. Mistakes stay until the next edition.","Costs money, paper, and time to print and deliver.","No sound or motion, and it only reaches places where copies go."],
+    m:{speed:[1,"Slow: hours to days"],reach:[2,"Local to regional"],inter:[1,"Very low: letters to the editor"]}, fmt:["Text","Images"],
+    ex:"Real-world example: a town newspaper, a trail map, a museum brochure." },
+  { key:"radio", name:"Radio", color:"var(--radio)", tag:"AM and FM stations, emergency broadcasts",
+    how:"Sound travels through the air as radio waves to any receiver tuned to that station.",
+    pros:["Fast. A station can go live the moment news breaks.","Reaches huge areas, including rural towns and cars on the highway.","Receivers are cheap, and battery or hand-crank radios work in a power outage.","Hands-free. You can listen while driving, working, or cooking."],
+    cons:["Sound only. It can't show a map, a photo, or a video.","Mostly one-way. Only a few listeners can call in.","If you miss it, it's gone. It's hard to replay or look up later.","The signal fades with distance, hills, and buildings."],
+    m:{speed:[4,"Fast: live"],reach:[4,"Wide, even rural areas"],inter:[2,"Low: call-in shows"]}, fmt:["Audio"],
+    ex:"Real-world example: traffic reports, school-closing announcements, emergency alerts during storms." },
+  { key:"tv", name:"Television", color:"var(--tv)", tag:"Broadcast, cable, and satellite channels",
+    how:"Video and sound are sent by broadcast signal, cable, or satellite to TV screens.",
+    pros:["Shows video and sound together, so people can see what happened.","Can go live to millions of people at once.","Great for showing things like storm maps, demonstrations, and big events.","Reaches people who don't use smartphones or the internet."],
+    cons:["Expensive to produce: cameras, studios, crews, and airtime.","One-way. Viewers usually can't respond.","Runs on a schedule. If you miss the newscast, you may miss the story.","Needs a screen and power, and you have to stay in front of it."],
+    m:{speed:[4,"Fast: live"],reach:[4,"Wide: millions at once"],inter:[1,"Very low"]}, fmt:["Text","Images","Audio","Video"],
+    ex:"Real-world example: the evening news, a weather forecast, a live sports broadcast." },
+  { key:"web", name:"Internet", color:"var(--web)", tag:"Websites, social media, email, streaming, apps",
+    how:"Information travels as data between connected devices like phones, laptops, and servers.",
+    pros:["Fastest. Anyone can post or update in seconds.","Global reach, any time of day or night.","Can mix every format: text, images, audio, video, and links.","Interactive. People can comment, share, reply, and search."],
+    cons:["False information can spread just as fast as the truth.","Needs a device, power, and a connection, and not everyone has those.","So much information that important messages get missed.","Privacy and security risks."],
+    m:{speed:[5,"Instant"],reach:[5,"Global"],inter:[5,"Very high"]}, fmt:["Text","Images","Audio","Video"],
+    ex:"Real-world example: a school website, a group text, a video posted to social media." }
+];
+const SYS_BY = Object.fromEntries(SYS.map(s => [s.key, s]));
+const SYSN = ["Print","Radio","Television","Internet"];
+const CRIT = ["Speed","Reach","Format","Interactivity"];
+const BD = ["Benefit","Drawback"];
+const tag = k => `<span class="sys-tag" style="background:${SYS_BY[k].color}">${SYS_BY[k].name}</span>`;
+
+const SECTIONS = [
+  { key:"A", host:"gridA", inline:true, title:"Meet the Systems", qs:[
+    { id:"a1", p:"A message gets to people across the whole country, not just your town. Which criterion is that?", o:CRIT, a:1, why:"Reach is about how many people a message gets to and how far it travels." },
+    { id:"a2", p:"A system lets the audience comment, ask questions, and reply. Which criterion is that?", o:CRIT, a:3, why:"Interactivity means the audience can talk back, not just receive." },
+    { id:"a3", p:"Breaking news is out within seconds of happening. Which criterion is that?", o:CRIT, a:0, why:"Speed is how fast the message gets out." },
+    { id:"a4", p:"One system can show a video, and another can only play sound. Which criterion are you comparing?", o:CRIT, a:2, why:"Format is the kind of content a system can carry." },
+    { id:"a5", p:"Which system rates highest for interactivity?", o:SYSN, a:3, why:"The internet lets people comment, share, and reply right away. The other three are mostly one-way." },
+    { id:"a6", p:"Which system is the only one you can use with no power, battery, or device at all?", o:SYSN, a:0, why:"You just pick up paper and read it. Every other system needs a receiver, a screen, or a device." }
+  ]},
+  { key:"B", host:"partsMid", kicker:"Identify", title:"Which System Am I?",
+    intro:"Each clue is a communication system talking about itself. Name the system.", qs:[
+    { id:"b1", p:"“You can listen to me while you drive, but you'll never see a single picture.”", o:SYSN, a:1, why:"Radio is sound only, which makes it hands-free and eyes-free." },
+    { id:"b2", p:"“You can read me again tomorrow, write in my margins, and I never need a battery.”", o:SYSN, a:0, why:"Print is permanent and needs no power." },
+    { id:"b3", p:"“Weather forecasters stand in front of me and point at a moving storm map.”", o:SYSN, a:2, why:"TV combines moving pictures with a person explaining them out loud." },
+    { id:"b4", p:"“Anyone can post on me in seconds, so false rumors can spread fast too.”", o:SYSN, a:3, why:"The internet's speed is a benefit and a drawback. Nobody checks most posts before they go out." },
+    { id:"b5", p:"“Once I'm published, my mistakes stay there until the next edition.”", o:SYSN, a:0, why:"You can't update a newspaper or book after it's printed." },
+    { id:"b6", p:"“I can be searched, shared, and commented on, but you need a device and a connection to use me.”", o:SYSN, a:3, why:"The internet is the most interactive system, but it depends on devices and connections." },
+    { id:"b7", p:"“A battery or hand-crank version of me still works when the power goes out.”", o:SYSN, a:1, why:"Emergency radios are a key part of disaster kits for exactly this reason." },
+    { id:"b8", p:"“I bring live video to millions at once, but making me needs cameras, studios, and expensive airtime.”", o:SYSN, a:2, why:"TV has a huge reach with video, but it is the most expensive to produce." }
+  ]},
+  { key:"C", host:"partsMid", kicker:"Compare", title:"Benefit or Drawback?", compact:true,
+    intro:"Decide whether each statement is a benefit or a drawback of that system.", qs:[
+    { id:"c1", p:`${tag("web")}Messages can reach people around the world in seconds.`, o:BD, a:0, why:"Speed and global reach are the internet's biggest strengths." },
+    { id:"c2", p:`${tag("print")}A story can't be updated after the paper is printed.`, o:BD, a:1, why:"If the news changes, print can't keep up until the next edition." },
+    { id:"c3", p:`${tag("radio")}It uses only sound, so it can't show a map or photo.`, o:BD, a:1, why:"Its format is limited to audio." },
+    { id:"c4", p:`${tag("tv")}It combines video, sound, and text so viewers can see what happened.`, o:BD, a:0, why:"TV's rich format helps people understand events." },
+    { id:"c5", p:`${tag("web")}Not everyone has a device or a fast connection at home.`, o:BD, a:1, why:"This gap is called the digital divide. It means some people miss online messages." },
+    { id:"c6", p:`${tag("print")}A printed book can last for hundreds of years.`, o:BD, a:0, why:"Print is the most permanent system." },
+    { id:"c7", p:`${tag("radio")}People can listen while working, driving, or cooking.`, o:BD, a:0, why:"Being hands-free means radio fits into people's day." },
+    { id:"c8", p:`${tag("tv")}Producing a broadcast takes expensive cameras, studios, and crews.`, o:BD, a:1, why:"High cost means not everyone can use TV to send a message." },
+    { id:"c9", p:`${tag("web")}Viewers can comment, reply, and share right away.`, o:BD, a:0, why:"High interactivity lets a message spread and lets people respond." },
+    { id:"c10", p:`${tag("print")}Printing and delivering copies costs money and paper.`, o:BD, a:1, why:"Every extra copy costs more, which limits print's reach." }
+  ]},
+  { key:"E", host:"partsLow", kicker:"Apply", title:"Wrong Channel!",
+    intro:"Each situation has a best choice. Pick it, then read why the wrong system would cause a problem.", qs:[
+    { id:"e1", p:"Your dog got loose. You want neighbors to see a photo within the hour and message you if they spot her.", o:SYSN, a:3, why:"The internet is fast, shows a photo, and lets people reply with sightings. A newspaper wouldn't come out in time, and radio can't show what she looks like." },
+    { id:"e2", p:"Hikers are heading into a state forest with no cell service. They need a trail map.", o:SYSN, a:0, why:"A paper map needs no signal or battery. A map on a website stops working when the signal drops, and the wrong choice could get someone lost." },
+    { id:"e3", p:"A forecaster needs to show millions of people a hurricane's path, including older viewers who don't use smartphones.", o:SYSN, a:2, why:"TV shows a moving map with someone explaining it, live, to a huge audience. Radio can't show the map, and the internet misses people who aren't online." },
+    { id:"e4", p:"Drivers on the highway need to know there's a crash ahead and they should take another exit.", o:SYSN, a:1, why:"Drivers can listen without taking their eyes off the road. Reading a phone or paper while driving is dangerous, so the wrong system creates a safety problem." },
+    { id:"e5", p:"The school needs parents to choose a time slot for parent-teacher conferences.", o:SYSN, a:3, why:"Parents need to respond and pick a time. Radio and TV are one-way, and a paper form is slow and can get lost in a backpack." },
+    { id:"e6", p:"The town historical society wants a record of this year's town fair that people can still read in 75 years.", o:SYSN, a:0, why:"Print is the most permanent. Websites can disappear when no one pays for them, and file formats go out of date." }
+  ]}
+];
+
+const MX_CRIT = [["speed","Speed"],["reach","Reach"],["format","Format"],["inter","Interactivity"]];
+const TEXT_IDS = ["d_r1","d_r2","f_scn","f_sys","f_why","f_con","f_backup","f_wrong","f_eq"];
+const TEXT_LABELS = {
+  d_r1:"D1. Highest total and is it best?", d_r2:"D2. What the criteria missed",
+  f_scn:"F. Scenario", f_sys:"F. Recommended system", f_why:"F1. Why it's best",
+  f_con:"F2. Drawback and workaround", f_backup:"F3. Backup system", f_wrong:"F4. Wrong choice and the problem", f_eq:"F5. Why no system is best for everything"
+};
+const STORE_KEY = "comm-systems-worksheet-v1";
+const blank = () => ({ answers:{}, text:{}, mx:{}, seen:[], tab:"print", name:"", period:"" });
+let state = blank();
+
+function load(){ try{ const r = localStorage.getItem(STORE_KEY); if(r) state = Object.assign(blank(), JSON.parse(r)); }catch(e){} }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+const allQs = SECTIONS.flatMap(s => s.qs);
+const qById = Object.fromEntries(allQs.map(q => [q.id, q]));
+const order = ["A","B","C","E"];
+
+/* Explorer */
+function renderTabs(){
+  document.getElementById("tabs").innerHTML = SYS.map(s =>
+    `<button class="tab" role="tab" type="button" id="tab_${s.key}" data-k="${s.key}" style="--c:${s.color}" aria-selected="${state.tab===s.key}" tabindex="${state.tab===s.key?0:-1}">${ICONS[s.key]}${s.name}<span class="seen" id="seen_${s.key}"></span></button>`).join("");
+}
+function renderPanel(){
+  const s = SYS_BY[state.tab];
+  if(!state.seen.includes(s.key)){ state.seen.push(s.key); save(); }
+  const p = document.getElementById("sysPanel");
+  p.style.setProperty("--c", s.color);
+  const meter = (label, [n, word]) => `<div class="meter"><b>${label}</b><div class="segs">${[1,2,3,4,5].map(i=>`<i class="${i<=n?"on":""}"></i>`).join("")}</div><span>${word}</span></div>`;
+  p.innerHTML = `
+    <div class="p-top"><div class="p-icon">${ICONS[s.key]}</div>
+      <div><h3>${s.name}</h3><p class="tagline">${s.tag}</p><p>${s.how}</p></div></div>
+    <div class="pc">
+      <div class="plus"><h4>Benefits</h4><ul>${s.pros.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="minus"><h4>Drawbacks</h4><ul>${s.cons.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    </div>
+    <div class="meters">
+      ${meter("Speed", s.m.speed)}
+      ${meter("Reach", s.m.reach)}
+      <div class="meter"><b>Format</b><div class="chips">${["Text","Images","Audio","Video"].map(f=>`<span class="chip ${s.fmt.includes(f)?"on":""}">${f}</span>`).join("")}</div></div>
+      ${meter("Interactivity", s.m.inter)}
+    </div>
+    <div class="example">${s.ex}</div>`;
+  SYS.forEach(x => {
+    const t = document.getElementById("tab_"+x.key);
+    t.setAttribute("aria-selected", x.key===state.tab); t.tabIndex = x.key===state.tab ? 0 : -1;
+    document.getElementById("seen_"+x.key).textContent = state.seen.includes(x.key) ? "✓ viewed" : "tap to open";
+  });
+  update();
+}
+function wireTabs(){
+  const host = document.getElementById("tabs");
+  host.addEventListener("click", e => { const b = e.target.closest(".tab"); if(!b) return; state.tab = b.dataset.k; save(); renderPanel(); });
+  host.addEventListener("keydown", e => {
+    if(!["ArrowRight","ArrowLeft"].includes(e.key)) return;
+    const i = SYS.findIndex(s => s.key===state.tab);
+    const n = (i + (e.key==="ArrowRight"?1:-1) + SYS.length) % SYS.length;
+    state.tab = SYS[n].key; save(); renderPanel(); document.getElementById("tab_"+state.tab).focus();
+  });
+}
+
+/* Question sections */
+function qCard(sec, q, i){
+  return `<div class="q" id="q_${q.id}"><span class="q-num">${sec.key}${i+1}</span><p class="q-prompt">${q.p}</p>
+    <div class="opts">${q.o.map((l,j)=>`<button class="opt" type="button" data-q="${q.id}" data-i="${j}">${l}</button>`).join("")}</div>
+    <p class="why" hidden></p></div>`;
+}
+function renderSections(){
+  SECTIONS.forEach(sec => {
+    const host = document.getElementById(sec.host);
+    const cards = sec.qs.map((q,i)=>qCard(sec,q,i)).join("");
+    if(sec.inline){ host.innerHTML = cards; return; }
+    host.insertAdjacentHTML("beforeend", `<section class="part" id="part${sec.key}">
+      <div class="part-head"><div class="part-letter">${sec.key}</div>
+        <div class="part-title"><span class="kicker">${sec.kicker}</span><h2>${sec.title}</h2></div>
+        <span class="part-score" id="score${sec.key}"></span></div>
+      <div class="part-body"><p class="intro">${sec.intro}</p><div class="qgrid ${sec.compact?"compact":""}">${cards}</div></div></section>`);
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest(".opt"); if(!b) return;
+    choose(b.dataset.q, +b.dataset.i);
+  });
+}
+function choose(id, i){
+  if(state.answers[id] !== undefined) return;
+  state.answers[id] = i; save(); paintQ(id); update();
+}
+function paintQ(id){
+  const q = qById[id], card = document.getElementById("q_"+id), pick = state.answers[id];
+  const bs = card.querySelectorAll(".opt"), why = card.querySelector(".why");
+  card.classList.remove("right","wrong");
+  bs.forEach(b => { b.classList.remove("is-right","is-pick-wrong"); b.disabled = pick !== undefined; });
+  if(pick === undefined){ why.hidden = true; return; }
+  const ok = pick === q.a;
+  card.classList.add(ok ? "right" : "wrong");
+  bs[q.a].classList.add("is-right");
+  if(!ok) bs[pick].classList.add("is-pick-wrong");
+  why.innerHTML = `<b>${ok ? "Correct!" : "Not quite."}</b>${q.why}`;
+  why.hidden = false;
+}
+
+/* Matrix */
+function renderMatrix(){
+  const opts = `<option value="">–</option>` + [1,2,3,4,5].map(n=>`<option>${n}</option>`).join("");
+  document.getElementById("matrix").innerHTML =
+    `<div class="mx-row mx-head"><span>System</span>${MX_CRIT.map(c=>`<span>${c[1]}</span>`).join("")}<span style="text-align:right">Total</span></div>` +
+    SYS.map(s => `<div class="mx-row" id="mx_${s.key}" style="--c:${s.color}"><span class="mx-sys">${s.name}</span>${MX_CRIT.map(([k,l]) =>
+      `<div class="mx-cell"><label for="m_${s.key}_${k}">${l}</label><select id="m_${s.key}_${k}" data-mx="${s.key}_${k}" aria-label="${s.name} ${l}">${opts}</select></div>`).join("")}<span class="mx-total" id="tot_${s.key}">–</span></div>`).join("");
+  document.querySelectorAll("[data-mx]").forEach(sel => {
+    sel.value = state.mx[sel.dataset.mx] || "";
+    sel.addEventListener("change", () => { state.mx[sel.dataset.mx] = sel.value; save(); paintMatrix(); update(); });
+  });
+  paintMatrix();
+}
+const cellsFilled = () => Object.values(state.mx).filter(Boolean).length;
+const totalFor = k => MX_CRIT.reduce((t,[c]) => t + (+state.mx[k+"_"+c] || 0), 0);
+function paintMatrix(){
+  const full = cellsFilled() === SYS.length * MX_CRIT.length;
+  const totals = SYS.map(s => totalFor(s.key)), max = Math.max(...totals);
+  SYS.forEach((s,i) => {
+    const any = MX_CRIT.some(([c]) => state.mx[s.key+"_"+c]);
+    document.getElementById("tot_"+s.key).textContent = any ? totals[i] : "–";
+    document.getElementById("mx_"+s.key).classList.toggle("win", full && totals[i] === max);
+  });
+}
+
+/* Progress + results */
+const textDone = id => (state.text[id] || "").trim().length > 0;
+function update(){
+  let correct = 0, answered = 0;
+  const tally = [];
+  SECTIONS.forEach(sec => {
+    const c = sec.qs.filter(q => state.answers[q.id] === q.a).length;
+    const a = sec.qs.filter(q => state.answers[q.id] !== undefined).length;
+    correct += c; answered += a;
+    const chip = document.getElementById("score"+sec.key);
+    if(chip){ chip.textContent = a === sec.qs.length ? `${c} / ${sec.qs.length} correct` : `${a} / ${sec.qs.length} answered`; chip.classList.toggle("done", a === sec.qs.length); }
+    tally.push([sec.key, `<div><span>Part ${sec.key} · ${sec.title}</span><strong>${c} / ${sec.qs.length}</strong></div>`]);
+  });
+  const nCells = SYS.length * MX_CRIT.length, filled = cellsFilled();
+  const dText = ["d_r1","d_r2"].filter(textDone).length;
+  const fIds = TEXT_IDS.filter(id => id[0]==="f"), fText = fIds.filter(textDone).length;
+  const chD = document.getElementById("scoreD"); chD.textContent = `${filled + dText} / ${nCells + 2} done`; chD.classList.toggle("done", filled + dText === nCells + 2);
+  const chF = document.getElementById("scoreF"); chF.textContent = `${fText} / ${fIds.length} done`; chF.classList.toggle("done", fText === fIds.length);
+  tally.push(["D", `<div><span>Part D · Score the Systems</span><strong>${filled} / ${nCells} rated</strong></div>`]);
+  tally.push(["F", `<div><span>Part F · You Make the Call</span><strong>${fText} / ${fIds.length} written</strong></div>`]);
+  tally.sort((x,y) => x[0].localeCompare(y[0]));
+  document.getElementById("tally").innerHTML = tally.map(t => t[1]).join("");
+
+  const totalItems = allQs.length + nCells + TEXT_IDS.length;
+  const doneItems = answered + filled + TEXT_IDS.filter(textDone).length;
+  document.getElementById("barFill").style.width = (100 * doneItems / totalItems) + "%";
+  document.getElementById("progCount").textContent = `${doneItems} / ${totalItems}`;
+  document.getElementById("bigScore").textContent = `${correct} / ${allQs.length}`;
+
+  const items = [
+    [!!state.name.trim(), "Name filled in"],
+    [!!state.period.trim(), "Period filled in"],
+    [state.seen.length === SYS.length, `All four channels opened (${state.seen.length} / 4)`],
+    [answered === allQs.length, `Parts A, B, C, E answered (${answered} / ${allQs.length})`],
+    [filled === nCells && dText === 2, "Part D matrix and reflection done"],
+    [fText === fIds.length, `Part F written (${fText} / ${fIds.length})`]
+  ];
+  document.getElementById("checklist").innerHTML = items.map(([ok,t]) => `<li class="${ok?"ok":""}">${ok?"✓ ":""}${t}</li>`).join("");
+}
+
+function buildCopy(){
+  const L = [];
+  L.push("CHOOSE YOUR CHANNEL: COMMUNICATION SYSTEMS · 7.MS-ETS3-2(MA)");
+  L.push(`Name: ${state.name || "(blank)"}`);
+  L.push(`Period: ${state.period || "(blank)"}`);
+  const correct = allQs.filter(q => state.answers[q.id] === q.a).length;
+  L.push(`Score on Parts A, B, C, E: ${correct} / ${allQs.length}`, "");
+  const strip = s => s.replace(/<[^>]+>/g, "");
+  const secOut = sec => {
+    const c = sec.qs.filter(q => state.answers[q.id] === q.a).length;
+    L.push(`PART ${sec.key}: ${sec.title.toUpperCase()} (${c} / ${sec.qs.length})`);
+    sec.qs.forEach((q,i) => {
+      const pick = state.answers[q.id];
+      const mark = pick === undefined ? "–" : (pick === q.a ? "✓" : "✗");
+      L.push(`  ${sec.key}${i+1} ${mark} ${pick === undefined ? "(not answered)" : q.o[pick]}`);
+    });
+    L.push("");
+  };
+  SECTIONS.filter(s => "ABC".includes(s.key)).forEach(secOut);
+  L.push("PART D: SCORE THE SYSTEMS (ice storm scenario)");
+  SYS.forEach(s => L.push(`  ${s.name}: ` + MX_CRIT.map(([k,l]) => `${l} ${state.mx[s.key+"_"+k] || "–"}`).join(", ") + ` · Total ${totalFor(s.key)}`));
+  ["d_r1","d_r2"].forEach(id => { L.push(TEXT_LABELS[id]); L.push("  " + ((state.text[id]||"").trim() || "(blank)")); });
+  L.push("");
+  SECTIONS.filter(s => s.key==="E").forEach(secOut);
+  L.push("PART F: YOU MAKE THE CALL");
+  TEXT_IDS.filter(id => id[0]==="f").forEach(id => { L.push(TEXT_LABELS[id]); L.push("  " + ((state.text[id]||"").trim() || "(blank)")); });
+  return L.map(strip).join("\n");
+}
+
+function wire(){
+  const nameI = document.getElementById("stuName"), perI = document.getElementById("stuPeriod");
+  nameI.value = state.name; perI.value = state.period;
+  nameI.addEventListener("input", () => { state.name = nameI.value; save(); update(); });
+  perI.addEventListener("input", () => { state.period = perI.value; save(); update(); });
+  TEXT_IDS.forEach(id => {
+    const f = document.getElementById(id);
+    f.value = state.text[id] || "";
+    f.addEventListener(f.tagName === "SELECT" ? "change" : "input", () => { state.text[id] = f.value; save(); update(); });
+  });
+  const status = document.getElementById("copyStatus"), ta = document.getElementById("copyText");
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const text = buildCopy(); ta.value = text;
+    const fallback = () => { ta.hidden = false; ta.focus(); ta.select(); status.textContent = "Select all the text in the box and copy it."; };
+    try { navigator.clipboard.writeText(text).then(() => { ta.hidden = true; status.textContent = "Copied! Paste it into your assignment."; }, fallback); }
+    catch(e){ fallback(); }
+  });
+  const box = document.getElementById("confirmBox");
+  document.getElementById("resetBtn").addEventListener("click", () => { box.hidden = false; });
+  document.getElementById("confirmNo").addEventListener("click", () => { box.hidden = true; });
+  document.getElementById("confirmYes").addEventListener("click", () => {
+    state = blank(); save(); box.hidden = true;
+    nameI.value = ""; perI.value = "";
+    TEXT_IDS.forEach(id => { document.getElementById(id).value = ""; });
+    document.querySelectorAll("[data-mx]").forEach(s => { s.value = ""; });
+    allQs.forEach(q => paintQ(q.id));
+    ta.hidden = true; status.textContent = "";
+    paintMatrix(); renderPanel();
+    window.scrollTo({ top: 0 });
+  });
+}
+
+load();
+renderTabs();
+renderSections();
+allQs.forEach(q => paintQ(q.id));
+renderMatrix();
+wire();
+wireTabs();
+renderPanel();
+}
+</script>
+</body>
+</html>
